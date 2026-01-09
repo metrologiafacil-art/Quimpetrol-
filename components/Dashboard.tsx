@@ -79,38 +79,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewChange }) => {
           </button>
         ))}
       </div>
-      
-      {/* Industrial Intelligence Stats */}
-      <div className="mt-20 glass-panel-light p-10 rounded-[3rem] neon-border-blue border-[#002d62]/10 shadow-[0_20px_50px_rgba(0,45,98,0.1)] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#00599a]/5 -mr-32 -mt-32 rounded-full blur-3xl"></div>
-        
-        <div className="flex items-center mb-8 relative">
-           <div className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_green] animate-pulse mr-4"></div>
-           <h4 className="text-[11px] font-orbitron text-[#00599a] tracking-[0.4em] uppercase font-black neon-text-blue">Telemetría Operativa Quimpetrol</h4>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 relative">
-          {[
-            { label: 'CALIDAD ISO/IEC 17025', value: '100%', sub: 'CUMPLIMIENTO TOTAL', color: 'border-[#e30613]' },
-            { label: 'VALIA ENGINE CORE', value: 'ACTIVE', sub: 'ESTADO ÓPTIMO', color: 'border-[#002d62]' },
-            { label: 'INTEGRIDAD DOCUMENTAL', value: '99.9%', sub: 'SGC SINCRONIZADO', color: 'border-[#f47920]' },
-            { label: 'EFICIENCIA METROLOGÍA', value: '+48%', sub: 'MEJORA CONTINUA', color: 'border-[#ffc20e]' }
-          ].map((stat, i) => (
-            <div 
-              key={i} 
-              onMouseEnter={() => sounds.playHover()}
-              className={`border-l-4 ${stat.color} pl-6 hover:translate-x-2 transition-transform duration-300 group cursor-default`}
-            >
-              <p className="text-[10px] text-slate-400 font-orbitron font-bold mb-2 group-hover:text-slate-600 transition-colors uppercase tracking-widest">{stat.label}</p>
-              <p className="text-3xl font-black text-[#002d62] mb-1">{stat.value}</p>
-              <div className="flex items-center">
-                 <div className="h-1 w-4 bg-slate-200 rounded-full mr-2"></div>
-                 <p className="text-[9px] text-slate-500 font-black tracking-widest uppercase">{stat.sub}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

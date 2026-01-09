@@ -1,11 +1,13 @@
+
 import React, { useState, useRef } from 'react';
-import { CpuIcon, DropletIcon } from './Icons';
+import { ValiaLogo, DropletIcon } from './Icons';
 import { 
   analyzeSafetyPhoto, 
   generateQualityResponse, 
   generateTTS, 
   generateImagePro 
 } from '../services/geminiService';
+import { sounds } from '../services/soundService';
 
 function decodeBase64(base64: string) {
   const binaryString = atob(base64);
@@ -53,6 +55,7 @@ const SgcDinamico: React.FC<Props> = ({ onBack }) => {
   const handleSendQuery = async () => {
     if (!inputText) return;
     setLoading(true);
+    sounds.playClick();
     setChatLog(prev => [...prev, { role: 'user', text: inputText }]);
     const currentInput = inputText;
     setInputText('');
@@ -73,6 +76,7 @@ const SgcDinamico: React.FC<Props> = ({ onBack }) => {
     if (!file) return;
 
     setLoading(true);
+    sounds.playClick();
     setAnalysisResult('Iniciando Visión Artificial QP...');
 
     const reader = new FileReader();
@@ -93,6 +97,7 @@ const SgcDinamico: React.FC<Props> = ({ onBack }) => {
 
   const handleTTS = async (text: string) => {
     try {
+      sounds.playClick();
       const base64Audio = await generateTTS(text);
       if (base64Audio) {
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
@@ -109,6 +114,7 @@ const SgcDinamico: React.FC<Props> = ({ onBack }) => {
   };
 
   const handleGenerateAsset = async () => {
+    sounds.playClick();
     const userPrompt = window.prompt("Describa el activo industrial o diagrama a generar:");
     if (!userPrompt) return;
 
@@ -130,7 +136,10 @@ const SgcDinamico: React.FC<Props> = ({ onBack }) => {
 
   return (
     <div className="max-w-7xl mx-auto w-full space-y-10 pb-16">
-      <button onClick={onBack} className="text-xs font-orbitron font-black text-[#00599a] hover:text-[#e30613] flex items-center group transition-all uppercase tracking-[0.2em] px-2">
+      <button 
+        onClick={() => { sounds.playClick(); onBack(); }} 
+        className="text-xs font-orbitron font-black text-[#00599a] hover:text-[#e30613] flex items-center group transition-all uppercase tracking-[0.2em] px-2"
+      >
         <span className="mr-3 group-hover:-translate-x-2 transition-transform">←</span> RETORNAR AL PANEL CENTRAL
       </button>
 
@@ -143,21 +152,21 @@ const SgcDinamico: React.FC<Props> = ({ onBack }) => {
             
             <div className="flex justify-between items-center mb-10 relative">
               <h3 className="text-2xl font-orbitron font-bold text-[#002d62] flex items-center neon-text-blue">
-                <CpuIcon className="w-10 h-10 mr-5 text-[#f47920] svg-glow-orange" />
+                <ValiaLogo className="w-16 h-16 mr-5 drop-shadow-[0_0_10px_rgba(244,121,32,0.4)]" />
                 ASISTENTE VALIA SGC
               </h3>
               <div className="flex items-center space-x-3 bg-white px-4 py-2 rounded-full border border-slate-100 shadow-sm">
                  <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_green] animate-pulse"></div>
-                 <span className="text-[10px] font-orbitron text-slate-500 font-black uppercase tracking-[0.2em]">SISTEMA ACTIVO</span>
+                 <span className="text-[10px] font-orbitron text-slate-500 font-black uppercase tracking-[0.2em]">VALIA ENGINE ONLINE</span>
               </div>
             </div>
             
             <div className="flex-grow overflow-y-auto space-y-8 mb-10 pr-4 custom-scrollbar">
               {chatLog.length === 0 && (
                 <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                  <div className="relative mb-8">
-                    <div className="absolute inset-0 bg-[#00599a]/10 rounded-full blur-2xl animate-pulse"></div>
-                    <DropletIcon className="relative w-24 h-24 mb-6 opacity-20 text-[#00599a] svg-glow-blue" />
+                  <div className="relative mb-8 group">
+                    <div className="absolute inset-0 bg-[#f47920]/10 rounded-full blur-2xl animate-pulse group-hover:bg-[#00599a]/20 transition-colors"></div>
+                    <ValiaLogo className="relative w-32 h-32 mb-6 opacity-30 grayscale hover:grayscale-0 transition-all duration-700" />
                   </div>
                   <p className="italic text-sm font-semibold text-center max-w-sm leading-relaxed px-6">
                     Inicie una consulta técnica sobre normativas <span className="text-[#00599a]">ISO/IEC 17025</span> o procesos operativos de Quimpetrol...

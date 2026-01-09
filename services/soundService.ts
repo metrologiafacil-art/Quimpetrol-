@@ -1,7 +1,7 @@
 
 class SoundService {
   private ctx: AudioContext | null = null;
-  private volume: number = 0.3;
+  private volume: number = 0.15; // Slightly lower default volume for a more professional feel
   private isMuted: boolean = false;
 
   private init() {
@@ -14,89 +14,129 @@ class SoundService {
     this.isMuted = muted;
   }
 
+  // A clean, metallic "clink" for button clicks
   playClick() {
     if (this.isMuted) return;
     this.init();
+    const now = this.ctx!.currentTime;
+    
+    const osc = this.ctx!.createOscillator();
+    const gain = this.ctx!.createGain();
+    const filter = this.ctx!.createBiquadFilter();
+    
+    // High frequency sine for the "ping"
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1200, now);
+    osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+    
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(1000, now);
+    
+    gain.gain.setValueAtTime(this.volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx!.destination);
+    
+    osc.start();
+    osc.stop(now + 0.08);
+  }
+
+  // A subtle "digital tick" for hovering
+  playHover() {
+    if (this.isMuted) return;
+    this.init();
+    const now = this.ctx!.currentTime;
+    
     const osc = this.ctx!.createOscillator();
     const gain = this.ctx!.createGain();
     
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(800, this.ctx!.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, this.ctx!.currentTime + 0.1);
+    osc.frequency.setValueAtTime(2400, now);
     
-    gain.gain.setValueAtTime(this.volume, this.ctx!.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx!.currentTime + 0.1);
-    
-    osc.connect(gain);
-    gain.connect(this.ctx!.destination);
-    
-    osc.start();
-    osc.stop(this.ctx!.currentTime + 0.1);
-  }
-
-  playHover() {
-    if (this.isMuted) return;
-    this.init();
-    const osc = this.ctx!.createOscillator();
-    const gain = this.ctx!.createGain();
-    
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(400, this.ctx!.currentTime);
-    osc.frequency.linearRampToValueAtTime(600, this.ctx!.currentTime + 0.05);
-    
-    gain.gain.setValueAtTime(this.volume * 0.2, this.ctx!.currentTime);
-    gain.gain.linearRampToValueAtTime(0, this.ctx!.currentTime + 0.05);
+    gain.gain.setValueAtTime(this.volume * 0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
     
     osc.connect(gain);
     gain.connect(this.ctx!.destination);
     
     osc.start();
-    osc.stop(this.ctx!.currentTime + 0.05);
+    osc.stop(now + 0.02);
   }
 
+  // A synthesized "swipe" or "scan" for view transitions
   playTransition() {
     if (this.isMuted) return;
     this.init();
-    const osc1 = this.ctx!.createOscillator();
-    const osc2 = this.ctx!.createOscillator();
+    const now = this.ctx!.currentTime;
+    const duration = 0.4;
+    
+    const osc = this.ctx!.createOscillator();
+    const noise = this.ctx!.createBufferSource();
+    const filter = this.ctx!.createBiquadFilter();
     const gain = this.ctx!.createGain();
     
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(200, this.ctx!.currentTime);
-    osc1.frequency.exponentialRampToValueAtTime(800, this.ctx!.currentTime + 0.3);
+    // Create a tiny noise buffer for a "whoosh" texture
+    const bufferSize = this.ctx!.sampleRate * duration;
+    const buffer = this.ctx!.createBuffer(1, bufferSize, this.ctx!.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    noise.buffer = buffer;
+
+    osc.type = 'square'; // Industrial buzz
+    osc.frequency.setValueAtTime(100, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + duration);
     
-    osc2.type = 'square';
-    osc2.frequency.setValueAtTime(100, this.ctx!.currentTime);
-    osc2.frequency.exponentialRampToValueAtTime(400, this.ctx!.currentTime + 0.3);
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(2000, now);
+    filter.frequency.exponentialRampToValueAtTime(50, now + duration);
+    filter.Q.setValueAtTime(10, now);
     
-    gain.gain.setValueAtTime(this.volume * 0.5, this.ctx!.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx!.currentTime + 0.3);
+    gain.gain.setValueAtTime(this.volume * 0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
     
-    osc1.connect(gain);
-    osc2.connect(gain);
+    osc.connect(filter);
+    noise.connect(filter);
+    filter.connect(gain);
     gain.connect(this.ctx!.destination);
     
-    osc1.start();
-    osc2.start();
-    osc1.stop(this.ctx!.currentTime + 0.3);
-    osc2.stop(this.ctx!.currentTime + 0.3);
+    osc.start();
+    noise.start();
+    osc.stop(now + duration);
+    noise.stop(now + duration);
   }
 
+  // A sophisticated "system ready" arpeggio
   playSuccess() {
     if (this.isMuted) return;
     this.init();
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-    notes.forEach((freq, i) => {
+    const now = this.ctx!.currentTime;
+    const frequencies = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5 (Major triad)
+    
+    frequencies.forEach((freq, i) => {
       const osc = this.ctx!.createOscillator();
       const gain = this.ctx!.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, this.ctx!.currentTime + i * 0.08);
-      gain.gain.setValueAtTime(this.volume, this.ctx!.currentTime + i * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx!.currentTime + i * 0.08 + 0.3);
-      osc.connect(gain);
+      const filter = this.ctx!.createBiquadFilter();
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + i * 0.06);
+      
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(freq * 2, now + i * 0.06);
+      
+      gain.gain.setValueAtTime(0, now + i * 0.06);
+      gain.gain.linearRampToValueAtTime(this.volume * 0.4, now + i * 0.06 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.25);
+      
+      osc.connect(filter);
+      filter.connect(gain);
       gain.connect(this.ctx!.destination);
-      osc.start(this.ctx!.currentTime + i * 0.08);
-      osc.stop(this.ctx!.currentTime + i * 0.08 + 0.3);
+      
+      osc.start(now + i * 0.06);
+      osc.stop(now + i * 0.06 + 0.25);
     });
   }
 }

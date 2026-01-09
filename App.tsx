@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AppView } from './types';
-import { DropletIcon, FactoryIcon } from './components/Icons';
+import { QuimpetrolLogo, MetrologiaFacilLogo, ValiaLogo } from './components/Icons';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import SgcDescargable from './components/SgcDescargable';
@@ -18,12 +18,17 @@ const App: React.FC = () => {
     if (isAuthenticated) {
       setCurrentView(AppView.DASHBOARD);
       sounds.playSuccess();
+    } else {
+      setCurrentView(AppView.LOGIN);
     }
   }, [isAuthenticated]);
 
   const handleViewChange = (view: AppView) => {
-    sounds.playTransition();
-    setCurrentView(view);
+    // Solo permitir cambio de vista si el usuario está autenticado o si va al login
+    if (isAuthenticated || view === AppView.LOGIN) {
+      sounds.playTransition();
+      setCurrentView(view);
+    }
   };
 
   const toggleMute = () => {
@@ -34,6 +39,11 @@ const App: React.FC = () => {
   };
 
   const renderView = () => {
+    // Guardia de seguridad: si no está autenticado, forzar vista de login
+    if (!isAuthenticated) {
+      return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
+    }
+
     switch (currentView) {
       case AppView.LOGIN:
         return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
@@ -51,39 +61,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen relative flex flex-col">
-      {/* Enhanced Neon Decorative Background */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-red-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute top-1/2 -right-40 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute -bottom-40 left-1/4 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[100px]"></div>
-        <div className="absolute top-20 left-1/3 w-32 h-32 bg-yellow-400/5 rounded-full blur-[60px] animate-pulse"></div>
-      </div>
+    <div className="min-h-screen relative flex flex-col bg-slate-50">
+      {/* Background set to a clean slate-50, decorative colors removed as requested */}
 
-      {/* Header with Sharp Neon Palette */}
-      <header className="px-6 py-4 flex justify-between items-center glass-panel-light sticky top-0 z-50 shadow-[0_4px_20px_rgba(0,45,98,0.08)] border-b-2 border-[#002d62]/20">
-        <div className="flex items-center space-x-4">
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#e30613] to-[#00599a] rounded-full blur opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-            <DropletIcon className="relative w-11 h-11 text-[#e30613] svg-glow-red" />
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#00599a] rounded-full border-2 border-white flex items-center justify-center shadow-[0_0_10px_rgba(0,89,154,0.6)]">
-               <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-orbitron font-bold tracking-tighter text-[#002d62] neon-text-blue">
-              QUIMPETROL <span className="text-[#e30613] neon-text-red">PERÚ</span>
-            </h1>
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-orbitron text-[#00599a] tracking-[0.3em] font-black uppercase">ISO/IEC 17025</span>
-              <div className="h-[2px] w-8 bg-gradient-to-r from-[#e30613] to-[#f47920]"></div>
-            </div>
-          </div>
-        </div>
+      {/* Header with Sharp Neon Palette - Left branding removed as requested */}
+      <header className="px-6 py-4 flex justify-end items-center bg-white sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.03)] border-b-2 border-slate-100">
         <div className="flex items-center space-x-4">
           <button 
             onClick={toggleMute}
-            className={`p-2 rounded-full transition-all border ${isMuted ? 'border-red-400 text-red-400 bg-red-50' : 'border-[#002d62] text-[#002d62] bg-blue-50'}`}
+            className={`p-3 rounded-full transition-all border ${isMuted ? 'border-red-400 text-red-400 bg-red-50' : 'border-slate-200 text-[#002d62] bg-white hover:bg-slate-50 shadow-sm'}`}
             title={isMuted ? "Activar sonido" : "Silenciar"}
           >
             {isMuted ? (
@@ -95,7 +81,7 @@ const App: React.FC = () => {
           {isAuthenticated && (
             <button 
               onClick={() => { sounds.playClick(); setIsAuthenticated(false); }}
-              className="px-6 py-2.5 text-[10px] font-orbitron font-black text-white bg-[#002d62] rounded-full hover:bg-[#e30613] transition-all transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,45,98,0.3)] hover:shadow-[0_0_15px_rgba(227,6,19,0.4)] uppercase tracking-widest"
+              className="px-6 py-3 text-[10px] font-orbitron font-black text-white bg-[#002d62] rounded-full hover:bg-[#e30613] transition-all transform hover:scale-105 active:scale-95 shadow-md uppercase tracking-widest"
             >
               TERMINAR SESIÓN
             </button>
@@ -103,30 +89,33 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col container mx-auto px-4 py-10 relative">
+      <main className="flex-grow flex flex-col container mx-auto px-4 py-16 relative">
         {renderView()}
       </main>
 
-      {/* Footer with Glowing Accents */}
-      <footer className="py-8 glass-panel-light border-t-2 border-[#002d62]/10 bg-white/40">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
+      {/* Footer with Minimal Accents */}
+      <footer className="py-12 glass-panel-light border-t border-slate-100 bg-white">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="text-center md:text-left">
-            <p className="text-[10px] text-slate-400 font-orbitron uppercase tracking-[0.4em] mb-2">
-              Arquitectura de Calidad <span className="text-[#00599a] font-black neon-text-blue">Metrología Fácil</span>
-            </p>
-            <p className="text-[11px] text-slate-600 font-bold flex items-center justify-center md:justify-start">
-               <span className="w-2 h-2 rounded-full bg-green-500 mr-2 shadow-[0_0_5px_green]"></span>
+            <div className="flex items-center space-x-3 mb-4">
+              <MetrologiaFacilLogo className="w-8 h-8" />
+              <p className="text-[12px] text-slate-400 font-orbitron uppercase tracking-[0.4em]">
+                Arquitectura de Calidad <span className="text-[#002d62] font-black">Metrología Fácil</span>
+              </p>
+            </div>
+            <p className="text-[13px] text-slate-500 font-bold flex items-center justify-center md:justify-start">
+               <span className="w-2.5 h-2.5 rounded-full bg-green-500 mr-2 shadow-[0_0_8px_green]"></span>
                Ing. Luis Vieira & Nathalia Roa • © 2025
             </p>
           </div>
-          <div className="flex space-x-8">
-            <div className="flex flex-col items-center group cursor-pointer" onMouseEnter={() => sounds.playHover()}>
-              <span className="text-[#e30613] font-orbitron font-black text-xl neon-text-red transition-all group-hover:scale-110">Q.P</span>
-              <div className="h-1 w-0 group-hover:w-full bg-[#e30613] transition-all duration-300 shadow-[0_0_8px_#e30613]"></div>
+          <div className="flex space-x-12">
+            <div className={`flex flex-col items-center group ${isAuthenticated ? 'cursor-pointer' : ''}`} onMouseEnter={() => isAuthenticated && sounds.playHover()}>
+              <QuimpetrolLogo className="w-20 h-20 transition-all duration-300 group-hover:scale-110" />
+              <div className="h-1 w-0 group-hover:w-full bg-[#e30613] transition-all duration-300 mt-2"></div>
             </div>
-            <div className="flex flex-col items-center group cursor-pointer" onMouseEnter={() => sounds.playHover()}>
-              <span className="text-[#f47920] font-orbitron font-black text-xl neon-text-orange transition-all group-hover:scale-110">M.F</span>
-              <div className="h-1 w-0 group-hover:w-full bg-[#f47920] transition-all duration-300 shadow-[0_0_8px_#f47920]"></div>
+            <div className={`flex flex-col items-center group ${isAuthenticated ? 'cursor-pointer' : ''}`} onMouseEnter={() => isAuthenticated && sounds.playHover()}>
+              <ValiaLogo className="w-20 h-20 transition-all duration-300 group-hover:scale-110" />
+              <div className="h-1 w-0 group-hover:w-full bg-[#f47920] transition-all duration-300 mt-2"></div>
             </div>
           </div>
         </div>
