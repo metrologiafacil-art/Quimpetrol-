@@ -1,0 +1,8 @@
+{
+  "name": "Quimpetrol Perú - SGC Dinámico",
+  "description": "Sistema de Gestión de Calidad avanzado para Quimpetrol Perú, desarrollado por Metrología Fácil. Incluye herramientas de IA para análisis de hidrocarburos, generación de contenido y capacitaciones interactivas.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
