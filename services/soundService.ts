@@ -139,6 +139,38 @@ class SoundService {
       osc.stop(now + i * 0.06 + 0.25);
     });
   }
+
+  async playPCM(base64Audio: string, sampleRate: number = 24000) {
+    if (this.isMuted) return;
+    this.init();
+
+    try {
+      const binaryString = atob(base64Audio);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const dataInt16 = new Int16Array(bytes.buffer);
+      const numChannels = 1;
+      const frameCount = dataInt16.length / numChannels;
+
+      const buffer = this.ctx!.createBuffer(numChannels, frameCount, sampleRate);
+      const channelData = buffer.getChannelData(0);
+
+      for (let i = 0; i < frameCount; i++) {
+        channelData[i] = dataInt16[i] / 32768.0;
+      }
+
+      const source = this.ctx!.createBufferSource();
+      source.buffer = buffer;
+      source.connect(this.ctx!.destination);
+      source.start();
+    } catch (e) {
+      console.error("Error playing PCM audio", e);
+    }
+  }
 }
 
 export const sounds = new SoundService();
