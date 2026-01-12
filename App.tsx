@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { AppView } from './types';
 import { QuimpetrolLogo, MetrologiaFacilLogo, ValiaLogo } from './components/Icons';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import SgcDescargable from './components/SgcDescargable';
-import Capacitaciones from './components/Capacitaciones';
-import SgcDinamico from './components/SgcDinamico';
 import { sounds } from './services/soundService';
+
+// Lazy load heavy components to improve initial load performance
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const SgcDescargable = React.lazy(() => import('./components/SgcDescargable'));
+const Capacitaciones = React.lazy(() => import('./components/Capacitaciones'));
+const SgcDinamico = React.lazy(() => import('./components/SgcDinamico'));
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.LOGIN);
@@ -90,7 +92,16 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow flex flex-col container mx-auto px-4 py-16 relative">
-        {renderView()}
+        <React.Suspense fallback={
+          <div className="flex-grow flex items-center justify-center">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-12 h-12 border-4 border-[#002d62]/20 border-t-[#e30613] rounded-full animate-spin"></div>
+              <p className="text-xs font-orbitron font-bold text-[#002d62] tracking-[0.2em] animate-pulse">CARGANDO...</p>
+            </div>
+          </div>
+        }>
+          {renderView()}
+        </React.Suspense>
       </main>
 
       {/* Footer with Minimal Accents */}
