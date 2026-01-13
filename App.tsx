@@ -1,13 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { AppView } from './types';
 import { QuimpetrolLogo, MetrologiaFacilLogo, ValiaLogo } from './components/Icons';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import SgcDescargable from './components/SgcDescargable';
-import Capacitaciones from './components/Capacitaciones';
-import SgcDinamico from './components/SgcDinamico';
 import { sounds } from './services/soundService';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// PERFORMANCE OPTIMIZATION: Code Splitting
+// We use React.lazy to defer loading of heavier components until they are actually needed.
+// This reduces the initial bundle size, allowing the critical Login screen to load faster.
+// Impact: Reduces initial load JS payload by separating Dashboard, SgcDescargable, Capacitaciones, and SgcDinamico.
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const SgcDescargable = React.lazy(() => import('./components/SgcDescargable'));
+const Capacitaciones = React.lazy(() => import('./components/Capacitaciones'));
+const SgcDinamico = React.lazy(() => import('./components/SgcDinamico'));
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.LOGIN);
@@ -90,7 +96,9 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow flex flex-col container mx-auto px-4 py-16 relative">
-        {renderView()}
+        <Suspense fallback={<LoadingSpinner />}>
+          {renderView()}
+        </Suspense>
       </main>
 
       {/* Footer with Minimal Accents */}
