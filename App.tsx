@@ -1,13 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { AppView } from './types';
 import { QuimpetrolLogo, MetrologiaFacilLogo, ValiaLogo } from './components/Icons';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import SgcDescargable from './components/SgcDescargable';
-import Capacitaciones from './components/Capacitaciones';
-import SgcDinamico from './components/SgcDinamico';
+import Loading from './components/Loading';
 import { sounds } from './services/soundService';
+
+// ⚡ Bolt Optimization: Implement Code Splitting
+// Using React.lazy to split the bundle. These components are large and not needed for the initial login screen.
+// This reduces the initial JavaScript payload significantly, speeding up the TTI (Time to Interactive).
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const SgcDescargable = lazy(() => import('./components/SgcDescargable'));
+const Capacitaciones = lazy(() => import('./components/Capacitaciones'));
+const SgcDinamico = lazy(() => import('./components/SgcDinamico'));
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.LOGIN);
@@ -90,7 +95,9 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow flex flex-col container mx-auto px-4 py-16 relative">
-        {renderView()}
+        <Suspense fallback={<Loading />}>
+          {renderView()}
+        </Suspense>
       </main>
 
       {/* Footer with Minimal Accents */}
