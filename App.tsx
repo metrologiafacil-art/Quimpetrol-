@@ -1,13 +1,24 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { AppView } from './types';
 import { QuimpetrolLogo, MetrologiaFacilLogo, ValiaLogo } from './components/Icons';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import SgcDescargable from './components/SgcDescargable';
-import Capacitaciones from './components/Capacitaciones';
-import SgcDinamico from './components/SgcDinamico';
 import { sounds } from './services/soundService';
+
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const SgcDescargable = React.lazy(() => import('./components/SgcDescargable'));
+const Capacitaciones = React.lazy(() => import('./components/Capacitaciones'));
+const SgcDinamico = React.lazy(() => import('./components/SgcDinamico'));
+
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center h-full min-h-[50vh]">
+     <div className="flex space-x-3">
+       <div className="w-3 h-3 bg-[#002d62] rounded-full animate-bounce"></div>
+       <div className="w-3 h-3 bg-[#e30613] rounded-full animate-bounce delay-75"></div>
+       <div className="w-3 h-3 bg-[#f47920] rounded-full animate-bounce delay-150"></div>
+     </div>
+  </div>
+);
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.LOGIN);
@@ -90,7 +101,9 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow flex flex-col container mx-auto px-4 py-16 relative">
-        {renderView()}
+        <Suspense fallback={<LoadingFallback />}>
+          {renderView()}
+        </Suspense>
       </main>
 
       {/* Footer with Minimal Accents */}
