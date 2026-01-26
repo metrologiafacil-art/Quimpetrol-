@@ -1,13 +1,25 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { AppView } from './types';
 import { QuimpetrolLogo, MetrologiaFacilLogo, ValiaLogo } from './components/Icons';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import SgcDescargable from './components/SgcDescargable';
-import Capacitaciones from './components/Capacitaciones';
-import SgcDinamico from './components/SgcDinamico';
 import { sounds } from './services/soundService';
+
+// ⚡ Bolt Optimization: Lazy load heavy components to reduce initial bundle size.
+// This prevents loading the large geminiService (~257kB) until needed.
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const SgcDescargable = React.lazy(() => import('./components/SgcDescargable'));
+const Capacitaciones = React.lazy(() => import('./components/Capacitaciones'));
+const SgcDinamico = React.lazy(() => import('./components/SgcDinamico'));
+
+const LoadingFallback = () => (
+  <div className="flex flex-col items-center justify-center min-h-[50vh]">
+    <QuimpetrolLogo className="w-16 h-16 animate-pulse" />
+    <p className="mt-4 text-xs font-orbitron text-slate-400 font-bold uppercase tracking-widest">
+      Cargando Módulo...
+    </p>
+  </div>
+);
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.LOGIN);
@@ -90,7 +102,9 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow flex flex-col container mx-auto px-4 py-16 relative">
-        {renderView()}
+        <Suspense fallback={<LoadingFallback />}>
+          {renderView()}
+        </Suspense>
       </main>
 
       {/* Footer with Minimal Accents */}
