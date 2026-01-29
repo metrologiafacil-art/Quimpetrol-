@@ -1,13 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { AppView } from './types';
 import { QuimpetrolLogo, MetrologiaFacilLogo, ValiaLogo } from './components/Icons';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import SgcDescargable from './components/SgcDescargable';
-import Capacitaciones from './components/Capacitaciones';
-import SgcDinamico from './components/SgcDinamico';
 import { sounds } from './services/soundService';
+
+// Implement Code Splitting: Lazy load heavy components to reduce initial bundle size
+// and defer loading of large dependencies (e.g., geminiService) until needed.
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const SgcDescargable = React.lazy(() => import('./components/SgcDescargable'));
+const Capacitaciones = React.lazy(() => import('./components/Capacitaciones'));
+const SgcDinamico = React.lazy(() => import('./components/SgcDinamico'));
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.LOGIN);
@@ -90,7 +93,13 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow flex flex-col container mx-auto px-4 py-16 relative">
-        {renderView()}
+        <Suspense fallback={
+          <div className="flex justify-center items-center h-full min-h-[400px]">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#f47920]"></div>
+          </div>
+        }>
+          {renderView()}
+        </Suspense>
       </main>
 
       {/* Footer with Minimal Accents */}
