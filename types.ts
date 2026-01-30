@@ -20,3 +20,12 @@ export interface DocumentInfo {
   category: string;
   lastUpdated: string;
 }
+
+declare global {
+  interface Window {
+    aistudio?: {
+      hasSelectedApiKey: () => Promise<boolean>;
+      openSelectKey: () => Promise<void>;
+    };
+  }
+}

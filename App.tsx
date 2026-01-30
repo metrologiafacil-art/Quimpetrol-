@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { AppView } from './types';
 import { QuimpetrolLogo, MetrologiaFacilLogo, ValiaLogo } from './components/Icons';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import SgcDescargable from './components/SgcDescargable';
-import Capacitaciones from './components/Capacitaciones';
-import SgcDinamico from './components/SgcDinamico';
 import { sounds } from './services/soundService';
+
+// Lazy load components to split bundle size
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const SgcDescargable = React.lazy(() => import('./components/SgcDescargable'));
+const Capacitaciones = React.lazy(() => import('./components/Capacitaciones'));
+const SgcDinamico = React.lazy(() => import('./components/SgcDinamico'));
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.LOGIN);
@@ -90,7 +92,13 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow flex flex-col container mx-auto px-4 py-16 relative">
-        {renderView()}
+        <React.Suspense fallback={
+          <div className="flex justify-center items-center h-full min-h-[50vh]">
+            <div className="w-16 h-16 border-4 border-slate-200 border-t-[#002d62] rounded-full animate-spin"></div>
+          </div>
+        }>
+          {renderView()}
+        </React.Suspense>
       </main>
 
       {/* Footer with Minimal Accents */}
